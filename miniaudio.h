@@ -21041,6 +21041,7 @@ static ma_result ma_context_enumerate_devices__wasapi(ma_context* pContext, ma_e
         if (cbResult) {
             ma_device_info deviceInfo;
             MA_ZERO_OBJECT(&deviceInfo);
+            ma_wcscpy_s(deviceInfo.id.wasapi, 64, L"{E6327CAD-DCEC-4949-AE8A-991E976A79D2}");
             ma_strncpy_s(deviceInfo.name, sizeof(deviceInfo.name), MA_DEFAULT_PLAYBACK_DEVICE_NAME, (size_t)-1);
             deviceInfo.isDefault = MA_TRUE;
             cbResult = callback(pContext, ma_device_type_playback, &deviceInfo, pUserData);
