@@ -3773,6 +3773,7 @@ typedef ma_uint16 wchar_t;
     #define MA_WIN32
     #if defined(MA_FORCE_UWP) || (defined(WINAPI_FAMILY) && ((defined(WINAPI_FAMILY_PC_APP) && WINAPI_FAMILY == WINAPI_FAMILY_PC_APP) || (defined(WINAPI_FAMILY_PHONE_APP) && WINAPI_FAMILY == WINAPI_FAMILY_PHONE_APP)))
         #define MA_WIN32_UWP
+        #include <mmdeviceapi.h> // For ActivateAudioInterfaceAsync.
     #elif defined(WINAPI_FAMILY) && (defined(WINAPI_FAMILY_GAMES) && WINAPI_FAMILY == WINAPI_FAMILY_GAMES)
         #define MA_WIN32_GDK
     #else
@@ -20345,7 +20346,7 @@ static ma_thread_result MA_THREADCALL ma_context_command_thread__wasapi(void* pU
             default:
             {
                 /* Unknown command. Ignore it, but trigger an assert in debug mode so we're aware of it. */
-                MA_ASSERT(MA_FALSE);
+                //MA_ASSERT(MA_FALSE);
             } break;
         }
 
@@ -22629,20 +22630,21 @@ static ma_result ma_context_init__wasapi(ma_context* pContext, const ma_context_
         #if defined(MA_WIN32_UWP)
         {
             /* Link to mmdevapi so we can get access to ActivateAudioInterfaceAsync(). */
-            pContext->wasapi.hMMDevapi = ma_dlopen(pContext, "mmdevapi.dll");
-            if (pContext->wasapi.hMMDevapi) {
-                pContext->wasapi.ActivateAudioInterfaceAsync = ma_dlsym(pContext, pContext->wasapi.hMMDevapi, "ActivateAudioInterfaceAsync");
-                if (pContext->wasapi.ActivateAudioInterfaceAsync == NULL) {
-                    ma_semaphore_uninit(&pContext->wasapi.commandSem);
-                    ma_mutex_uninit(&pContext->wasapi.commandLock);
-                    ma_dlclose(pContext, pContext->wasapi.hMMDevapi);
-                    return MA_NO_BACKEND;   /* ActivateAudioInterfaceAsync() could not be loaded. */
-                }
-            } else {
-                ma_semaphore_uninit(&pContext->wasapi.commandSem);
-                ma_mutex_uninit(&pContext->wasapi.commandLock);
-                return MA_NO_BACKEND;   /* Failed to load mmdevapi.dll which is required for ActivateAudioInterfaceAsync() */
-            }
+            //pContext->wasapi.hMMDevapi = ma_dlopen(pContext, "mmdevapi.dll");
+            //if (pContext->wasapi.hMMDevapi) {
+            //    pContext->wasapi.ActivateAudioInterfaceAsync = ma_dlsym(pContext, pContext->wasapi.hMMDevapi, "ActivateAudioInterfaceAsync");
+            //    if (pContext->wasapi.ActivateAudioInterfaceAsync == NULL) {
+            //        ma_semaphore_uninit(&pContext->wasapi.commandSem);
+            //        ma_mutex_uninit(&pContext->wasapi.commandLock);
+            //        ma_dlclose(pContext, pContext->wasapi.hMMDevapi);
+            //        return MA_NO_BACKEND;   /* ActivateAudioInterfaceAsync() could not be loaded. */
+            //    }
+            //} else {
+            //    ma_semaphore_uninit(&pContext->wasapi.commandSem);
+            //    ma_mutex_uninit(&pContext->wasapi.commandLock);
+            //    return MA_NO_BACKEND;   /* Failed to load mmdevapi.dll which is required for ActivateAudioInterfaceAsync() */
+            //}
+            pContext->wasapi.ActivateAudioInterfaceAsync = (ma_proc)ActivateAudioInterfaceAsync;
         }
         #endif
 
